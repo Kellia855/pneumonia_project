@@ -1,0 +1,13 @@
+# Runtime (installed in the Docker image). Match the TensorFlow version printed in the notebook if you can.
+tensorflow-cpu>=2.16,<2.22
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pillow>=10.0
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.4
+requests>=2.31
+pymongo>=4.6
+streamlit>=1.50
+plotly>=5.20
