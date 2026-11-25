@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+notebook/
+tests/
+results/
+demo_uploads/
+data/uploads/
+models/*_v*.h5
+.env
+full_dataset/

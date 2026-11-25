@@ -1,0 +1,70 @@
+# Local stack: MongoDB + N API containers behind an nginx load balancer + the dashboard.
+#
+#   docker compose up -d --build                 # 1 API container
+#   docker compose up -d --scale api=3           # 3 API containers (nginx picks up the new ones itself)
+#
+# Dashboard: http://localhost:8501     API (through the load balancer): http://localhost:8000/docs
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # Cap MongoDB's cache (by default it takes about half of Docker's memory, which TensorFlow needs).
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    image: pneumonia-mlops:latest
+    restart: unless-stopped
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017}   # set MONGO_URI to use MongoDB Atlas instead
+      MONGO_DB: pneumonia
+      RETRAIN_MIN_NEW_IMAGES: ${RETRAIN_MIN_NEW_IMAGES:-50}
+      AUTO_RETRAIN: ${AUTO_RETRAIN:-0}
+      TF_NUM_THREADS: ${API_CPUS:-2}                   # TensorFlow threads = CPUs given to the container
+    # Each container gets a fixed CPU share, like a separate small server. Without a limit one container
+    # would already use every core of the machine and adding containers could not show any effect.
+    cpus: ${API_CPUS:-2}
+    volumes:
+      # Shared by every API container: a model promoted by one is picked up by the others, and every
+      # container sees the uploaded images. Named volumes start as a copy of the image's folders.
+      - models:/app/models
+      - uploads:/app/data/uploads
+    expose:
+      - "8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+
+  ui:
+    build: .
+    image: pneumonia-mlops:latest
+    restart: unless-stopped
+    environment:
+      SERVICE: ui
+      API_URL: http://nginx
+    ports:
+      - "8501:8501"
+    depends_on:
+      - nginx
+
+volumes:
+  mongo-data:
+  models:
+  uploads:
