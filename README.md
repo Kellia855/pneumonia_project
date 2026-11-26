@@ -13,8 +13,8 @@ worse. The service runs in **Docker**, scales behind an **nginx** load balancer,
 
 ## Links
 - **Video demo (YouTube):** TODO: add link
-- **Live dashboard:** TODO: add URL
-- **Live API docs (Swagger):** TODO: add URL `/docs`
+- **Live dashboard:** http://13.60.222.13:8501/
+- **Live API docs (Swagger):** http://13.60.222.13:8000/docs
 - **Notebook:** [`notebook/pneumonia_pipeline.ipynb`](notebook/pneumonia_pipeline.ipynb)
 - **Dataset:** https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
 
