@@ -1,4 +1,4 @@
-# Pneumonia Detection from Chest X-rays: End-to-End MLOps Pipeline
+# Pneumonia Detection from Chest X-rays
 
 > Educational project. Not a medical device: predictions must never replace a clinician's diagnosis.
 
